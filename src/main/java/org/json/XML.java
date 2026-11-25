@@ -581,14 +581,30 @@ public class XML {
 
     /**
      * This method is the same as {@link JSONObject#stringToValue(String)}.
-     *
-     * @param string String to convert
+     * Warning! stringToValue(String) uses the default max number length. If you want to override it,
+     * use a suitable initialized XMLParserConfiguration and the method: stringToValue(String, XMLParserConfiguration).
+     * @param str String to convert
      * @return JSON value of this string or the string
      */
     // To maintain compatibility with the Android API, this method is a direct copy of
     // the one in JSONObject. Changes made here should be reflected there.
     // This method should not make calls out of the XML object.
-    public static Object stringToValue(String string) {
+    public static Object stringToValue(String str) {
+        return stringToValue(str, new XMLParserConfiguration());
+    }
+
+    /**
+     * This method is the same as {@link JSONObject#stringToValue(String)}.
+     *
+     * @param string String to convert
+     * @param xmlParserConfiguration the XML parser config object
+     * @return JSON value of this string or the string. If the string represents a number that is too large,
+     * a string will be returned.
+     */
+    // To maintain compatibility with the Android API, this method is a direct copy of
+    // the one in JSONObject. Changes made here should be reflected there.
+    // This method should not make calls out of the XML object.
+    public static Object stringToValue(String string, XMLParserConfiguration xmlParserConfiguration) {
         if ("".equals(string)) {
             return string;
         }
@@ -612,7 +628,13 @@ public class XML {
         char initial = string.charAt(0);
         if ((initial >= '0' && initial <= '9') || initial == '-') {
             try {
-                return stringToNumber(string);
+                // user declines max number checking
+                if (xmlParserConfiguration.getMaxNumberLength() == JSONParserConfiguration.UNDEFINED_MAXIMUM_NUMBER_LENGTH) {
+                    return stringToNumber(string);
+                }
+                if(string.length() <= xmlParserConfiguration.getMaxNumberLength()) {
+                    return stringToNumber(string);
+                }
             } catch (Exception ignore) {
             }
         }

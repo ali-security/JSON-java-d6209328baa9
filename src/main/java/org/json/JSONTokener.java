@@ -478,7 +478,7 @@ public class JSONTokener {
         if ("".equals(string)) {
             throw this.syntaxError("Missing value");
         }
-        Object obj = JSONObject.stringToValue(string);
+        Object obj = JSONObject.stringToValue(string, jsonParserConfiguration);
         // Strict mode only allows strings with explicit double quotes
         if (jsonParserConfiguration != null &&
                 jsonParserConfiguration.isStrictMode() &&
